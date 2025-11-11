@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, jsonify, send_file, g
 import sqlite3
 from invoice import generate_invoice_pdf
@@ -33,7 +32,6 @@ def init_db():
             cur.executescript(f.read())
         get_db().commit()
 
-# Index page with a simple HTML form for testing
 @app.route("/", methods=["GET"])
 def index():
     return """
@@ -70,14 +68,11 @@ def index():
     </script>
     """, 200
 
-# API: create invoice (accepts JSON)
 @app.route('/create_invoice', methods=['POST'])
 def create_invoice():
-    # Accept JSON body
     if request.is_json:
         data = request.get_json()
     else:
-        # fallback: try form fields (not used by JS but safe)
         try:
             data = {
                 "customer": {"name": request.form.get('customer_name'), "email": request.form.get('customer_email')},
@@ -90,12 +85,10 @@ def create_invoice():
     if not data:
         return jsonify({"error":"JSON body required"}), 400
 
-    # Basic validation
     items = data.get('items', [])
     if not isinstance(items, list) or len(items) == 0:
         return jsonify({"error":"items must be a non-empty list"}), 400
 
-    # validate item fields
     for it in items:
         if 'description' not in it:
             return jsonify({"error":"each item must have a description"}), 400
@@ -115,13 +108,11 @@ def create_invoice():
         "tax": data.get("tax", 0.0),
     }
 
-    # Generate PDF
     try:
         pdf_path, subtotal, tax_amount, total = generate_invoice_pdf(invoice_data, outdir=UPLOAD_FOLDER)
     except Exception as e:
         return jsonify({"error":"Failed to generate PDF", "detail": str(e)}), 500
 
-    # Insert into DB
     db = get_db()
     cur = db.cursor()
     cur.execute(
@@ -140,7 +131,6 @@ def create_invoice():
 
     return jsonify({"invoice_id": invoice_id, "pdf": pdf_path}), 201
 
-# List invoices
 @app.route('/invoices', methods=['GET'])
 def list_invoices():
     db = get_db()
@@ -149,7 +139,6 @@ def list_invoices():
     rows = [dict(r) for r in cur.fetchall()]
     return jsonify(rows)
 
-# Download PDF
 @app.route('/invoice/<int:invoice_id>/pdf', methods=['GET'])
 def download_invoice(invoice_id):
     db = get_db()
@@ -166,6 +155,6 @@ def download_invoice(invoice_id):
 if __name__ == '__main__':
     if not os.path.exists(DATABASE):
         init_db()
-    # Ensure invoices folder exists
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     app.run(host="127.0.0.1", port=5000, debug=True)
+
