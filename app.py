@@ -41,8 +41,8 @@ def index():
       Customer name: <input id="customer_name" value="Swarup"><br>
       Customer email: <input id="customer_email" value="swarup@gmail.com"><br>
       Items JSON (example):<br>
-      <textarea id="items" rows="6" cols="80">[{"description":"Widget A","qty":2,"unit_price":150.0},{"description":"Service B","qty":1,"unit_price":300.0}]</textarea><br>
-      Tax (percent): <input id="tax" value="5"><br>
+      <textarea id="items" rows="6" cols="80">[{"description":"Laptop","qty":1,"unit_price":40000.0},{"description":"Laptop Bag","qty":1,"unit_price":500.0}]</textarea><br>
+      Tax (percent): <input id="tax" value="8"><br>
       <button type="submit">Create Invoice</button>
     </form>
     <pre id="out"></pre>
@@ -157,4 +157,5 @@ if __name__ == '__main__':
         init_db()
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     app.run(host="127.0.0.1", port=5000, debug=True)
+
 
